@@ -13,11 +13,12 @@ d0_match = [(abs(i) != 999,i) for evt in tree for i in evt.matchtrk_d0]
 id  = [i for evt in tree for i in evt.tp_pdgid]
 pt = [i for evt in tree for i in evt.tp_pt]
 eta = [i for evt in tree for i in evt.tp_eta]
+eventid = [i for evt in tree for i in evt.tp_eventid]
 
 abs_d0 = [abs(i) for i in d0]
 
-d0_compare = zip(abs_d0,d0_match,id,pt,eta)
-d0_compare_cut = [i for i in d0_compare if not np.isnan(i[0]) and abs(i[2]) == 13 and 2 < i[3] < 20 and abs(i[4]) < 2]
+d0_compare = zip(abs_d0, d0_match, id, pt, eta, eventid)
+d0_compare_cut = [i for i in d0_compare if not np.isnan(i[0]) and abs(i[2]) == 13 and 2 < i[3] < 20 and abs(i[4]) < 2 and i[5] == 0] ##contains cuts for eta, pt, and pileup
 
 d0_eff = []
 d0binnum = np.arange(d0bin)
