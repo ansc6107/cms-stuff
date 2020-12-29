@@ -1,0 +1,38 @@
+import ROOT as rt
+import numpy as np
+f = rt.TFile("DispMu_2to100GeV_PU200_D49_extended.root",'read')
+tree = f.Get("L1TrackNtuple/eventTree")
+
+d0 = [i for evt in tree for i in evt.tp_d0]
+pt = [i for evt in tree for i in evt.tp_pt]
+eta = [i for evt in tree for i in evt.tp_eta]
+id = [i for evt in tree for i in evt.tp_pdgid]
+d0_match = [(abs(i) != 999, i) for evt in tree for i in evt.matchtrk_d0]
+pt_match = [(abs(i) != 999, i) for evt in tree for i in evt.matchtrk_pt]
+
+ptbin = 100.
+ptmin = 0.
+ptmax = 50.
+
+d0bin = 100.
+d0min = -20.
+d0max = 20.
+
+pt_compare = zip(pt, pt_match, d0, id, eta)
+pt_compare_cut = [ i for i in pt_compare if not np.isnan(i[0]) and 30 < i[0] and abs(i[3]) == 13 and abs(i[4]) < 2]
+
+h_invptres = rt.TH1F("p_{T}^{-1} Resolution","(1/(Gen) - 1/(Reco)) p_{T} Values", int(ptbin), -3, 3)
+h_invptres.GetXaxis().SetTitle("(1/(Gen) - 1/(Reco)) Transverse Momentum [GeV]")
+h_invptres.GetYaxis().SetTitle("Counts per Bin")
+
+h_d0vsInvpT = rt.TH2F("d_{0} Vs. p_{T}^{-1} Res.","Gen d_{0} Values Vs. (1/(Gen) - 1/(Reco)) p_{T} Values", int(ptbin), -3, 3, int(d0bin), -10, 10)
+h_d0vsInvpT.GetXaxis().SetTitle("(1/(Gen) - 1/(Reco)) Transverse Momentum [GeV]")
+h_d0vsInvpT.GetYaxis().SetTitle("Transverse Impact Parameter [cm]")
+
+for i in pt_compare_cut:
+    if i[1][0]:
+        h_invptres.Fill((1/(i[0])) - (1/(i[1][1])))
+        h_d0vsInvpT.Fill((1/(i[0])) - (1/(i[1][1])), i[2])
+
+#h_invptres.Draw()
+#h_d0vsInvpT.Draw()
